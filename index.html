@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clasificador de Imágenes - Teachable Machine</title>
+    <title>Clasificador de Aviones y Helicópteros</title>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest"></script>
     <!-- Importar fuente y estilos -->
@@ -11,7 +11,7 @@
     <style>
         body {
             font-family: 'Montserrat', sans-serif;
-            background-color: #f9f9f9;
+            background-color: #eef2f7;
             color: #333;
             margin: 0;
             padding: 0 20px;
@@ -118,14 +118,27 @@
 </head>
 <body>
     <header>
-        <h1>Clasificador de Imágenes con Teachable Machine</h1>
-        <p class="description">Analiza y clasifica imágenes utilizando un modelo de aprendizaje automático</p>
+        <h1>Clasificador de Aviones y Helicópteros</h1>
+        <p class="description">Utiliza este clasificador para distinguir entre imágenes de aviones y helicópteros</p>
     </header>
 
     <div class="content">
         <div class="instructions">
-            <h2>¿Cómo funciona?</h2>
-            <p>Este sitio web permite clasificar imágenes en tiempo real utilizando tu cámara o subiendo una imagen desde tu dispositivo. Selecciona una opción para comenzar y observa cómo el modelo predice la clase de la imagen junto con el porcentaje de confianza.</p>
+            <h2>¿Qué hace esta aplicación?</h2>
+            <p>Este sitio web utiliza un modelo de aprendizaje automático entrenado para diferenciar entre imágenes de <strong>aviones</strong> y <strong>helicópteros</strong>. Puedes usar tu cámara o subir una imagen desde tu dispositivo para realizar la clasificación. El sistema analizará la imagen y mostrará el nivel de confianza en la predicción.</p>
+            <p>A continuación, te presentamos ejemplos de cada clase para que sepas qué tipos de imágenes puedes probar:</p>
+            <div class="examples">
+                <div style="display: flex; justify-content: space-around; margin-top: 20px;">
+                    <div>
+                        <img src="ejemplos/avion.jpg" alt="Ejemplo Avión" style="width: 150px; border-radius: 8px;">
+                        <p>Avión</p>
+                    </div>
+                    <div>
+                        <img src="ejemplos/helicoptero.jpg" alt="Ejemplo Helicóptero" style="width: 150px; border-radius: 8px;">
+                        <p>Helicóptero</p>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="button-group">
@@ -149,7 +162,7 @@
                 <thead>
                     <tr>
                         <th>Clase</th>
-                        <th>Confianza</th>
+                        <th>Nivel de Confianza</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -162,7 +175,7 @@
     <script type="text/javascript">
         const MODEL_URL = "./model/";
 
-        let model, webcam, labelContainer, maxPredictions;
+        let model, webcam, maxPredictions;
 
         async function loadModel() {
             const modelURL = MODEL_URL + "model.json";
