@@ -3,113 +3,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modelo Teachable Machine</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
-    <!-- Importar la fuente Roboto -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto&display=swap">
+    <title>Clasificador de Imágenes - Teachable Machine</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest"></script>
+    <!-- Importar fuente y estilos -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap">
     <style>
         body {
-            font-family: 'Roboto', sans-serif;
-            text-align: center;
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
             margin: 0;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: #fff;
+            padding: 0 20px;
+        }
+        header {
+            text-align: center;
+            padding: 40px 0;
         }
         h1 {
-            margin-top: 50px;
-            font-size: 2.5em;
+            font-weight: 600;
+            margin-bottom: 10px;
         }
-        p {
-            font-size: 1.2em;
+        p.description {
+            font-size: 1.1em;
+            margin-top: 0;
         }
-        #webcam-container, #image-container {
-            margin: 20px auto;
-            width: 360px;
-            height: 270px;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            background-color: rgba(255, 255, 255, 0.1);
+        .content {
+            max-width: 800px;
+            margin: 0 auto;
         }
-        #label-container {
-            margin-top: 20px;
+        .instructions {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        #label-container div {
-            margin: 5px;
-            font-size: 1.2em;
+        .instructions h2 {
+            margin-top: 0;
+        }
+        .button-group {
+            text-align: center;
+            margin-bottom: 30px;
         }
         button {
-            margin: 15px 10px;
-            padding: 15px 30px;
+            margin: 10px 5px;
+            padding: 12px 24px;
             font-size: 1em;
             cursor: pointer;
-            background-color: #00d1b2;
+            background-color: #007bff;
             color: #fff;
             border: none;
-            border-radius: 50px;
+            border-radius: 5px;
             transition: background-color 0.3s, transform 0.2s;
         }
         button:hover {
-            background-color: #00b29e;
+            background-color: #0056b3;
             transform: translateY(-2px);
         }
         input[type="file"] {
             display: none;
         }
-        @media (max-width: 600px) {
-            #webcam-container, #image-container {
-                width: 90%;
-                height: auto;
+        .containers {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            margin-bottom: 30px;
+        }
+        .container {
+            background-color: #fff;
+            width: 380px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin: 10px;
+            text-align: center;
+        }
+        canvas, img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+        .results {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .results h2 {
+            margin-top: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #007bff;
+            color: #fff;
+        }
+        @media (max-width: 800px) {
+            .containers {
+                flex-direction: column;
+                align-items: center;
             }
-            button {
-                width: 80%;
-                margin: 10px 0;
+            .container {
+                width: 100%;
             }
         }
     </style>
 </head>
 <body>
-    <h1>Modelo Teachable Machine</h1>
-    <p>Clasificación de Imágenes</p>
-    <button type="button" onclick="init()">Iniciar Cámara</button>
-    <button type="button" onclick="uploadImage()">Subir Imagen</button>
-    <input type="file" id="image-upload" accept="image/*" onchange="loadImage(event)">
-    <div id="webcam-container"></div>
-    <div id="image-container"></div>
-    <div id="label-container"></div>
+    <header>
+        <h1>Clasificador de Imágenes con Teachable Machine</h1>
+        <p class="description">Analiza y clasifica imágenes utilizando un modelo de aprendizaje automático</p>
+    </header>
+
+    <div class="content">
+        <div class="instructions">
+            <h2>¿Cómo funciona?</h2>
+            <p>Este sitio web permite clasificar imágenes en tiempo real utilizando tu cámara o subiendo una imagen desde tu dispositivo. Selecciona una opción para comenzar y observa cómo el modelo predice la clase de la imagen junto con el porcentaje de confianza.</p>
+        </div>
+
+        <div class="button-group">
+            <button onclick="initWebcam()">Usar Cámara</button>
+            <button onclick="triggerUpload()">Subir Imagen</button>
+            <input type="file" id="image-upload" accept="image/*" onchange="loadImage(event)">
+        </div>
+
+        <div class="containers">
+            <div class="container" id="webcam-container">
+                <!-- Canvas de la cámara se insertará aquí -->
+            </div>
+            <div class="container" id="image-container">
+                <!-- Imagen subida se mostrará aquí -->
+            </div>
+        </div>
+
+        <div class="results" id="results-container">
+            <h2>Resultados del Análisis</h2>
+            <table id="results-table">
+                <thead>
+                    <tr>
+                        <th>Clase</th>
+                        <th>Confianza</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Resultados se insertarán aquí -->
+                </tbody>
+            </table>
+        </div>
+    </div>
 
     <script type="text/javascript">
         const MODEL_URL = "./model/";
 
         let model, webcam, labelContainer, maxPredictions;
 
-        async function init() {
-            document.querySelector('h1').innerText = 'Cargando modelo...';
+        async function loadModel() {
             const modelURL = MODEL_URL + "model.json";
             const metadataURL = MODEL_URL + "metadata.json";
 
             model = await tmImage.load(modelURL, metadataURL);
             maxPredictions = model.getTotalClasses();
+        }
 
-            document.querySelector('h1').innerText = 'Modelo Teachable Machine';
-
+        async function initWebcam() {
+            await loadModel();
+            if (webcam) {
+                webcam.stop();
+            }
             const flip = true;
-            webcam = new tmImage.Webcam(360, 270, flip);
+            webcam = new tmImage.Webcam(350, 350, flip);
             await webcam.setup().catch(err => {
                 alert('Error al acceder a la cámara: ' + err);
             });
             await webcam.play();
             window.requestAnimationFrame(loop);
 
+            document.getElementById("webcam-container").innerHTML = '';
             document.getElementById("webcam-container").appendChild(webcam.canvas);
-            labelContainer = document.getElementById("label-container");
-            labelContainer.innerHTML = '';
-            for (let i = 0; i < maxPredictions; i++) {
-                const labelDiv = document.createElement("div");
-                labelDiv.id = `label-${i}`;
-                labelContainer.appendChild(labelDiv);
-            }
+            document.getElementById("image-container").innerHTML = '';
+            resetResults();
         }
 
         async function loop() {
@@ -118,19 +197,15 @@
             window.requestAnimationFrame(loop);
         }
 
-        async function predict(image) {
-            const prediction = await model.predict(image, false);
-            prediction.forEach((pred, i) => {
-                const labelDiv = document.getElementById(`label-${i}`);
-                labelDiv.innerHTML = `${pred.className}: ${(pred.probability * 100).toFixed(2)}%`;
-            });
-        }
-
-        function uploadImage() {
+        function triggerUpload() {
             document.getElementById('image-upload').click();
         }
 
-        function loadImage(event) {
+        async function loadImage(event) {
+            await loadModel();
+            if (webcam) {
+                webcam.stop();
+            }
             const imageFile = event.target.files[0];
             if (imageFile) {
                 const image = document.createElement('img');
@@ -138,9 +213,34 @@
                 image.onload = async () => {
                     document.getElementById('image-container').innerHTML = '';
                     document.getElementById('image-container').appendChild(image);
+                    document.getElementById('webcam-container').innerHTML = '';
+                    resetResults();
                     await predict(image);
                 };
             }
+        }
+
+        async function predict(source) {
+            const prediction = await model.predict(source, false);
+            displayResults(prediction);
+        }
+
+        function displayResults(predictions) {
+            const resultsTable = document.getElementById('results-table').getElementsByTagName('tbody')[0];
+            resultsTable.innerHTML = '';
+            predictions.sort((a, b) => b.probability - a.probability);
+            predictions.forEach(pred => {
+                const row = resultsTable.insertRow();
+                const classCell = row.insertCell(0);
+                const probCell = row.insertCell(1);
+                classCell.textContent = pred.className;
+                probCell.textContent = (pred.probability * 100).toFixed(2) + '%';
+            });
+        }
+
+        function resetResults() {
+            const resultsTable = document.getElementById('results-table').getElementsByTagName('tbody')[0];
+            resultsTable.innerHTML = '';
         }
     </script>
 </body>
