@@ -6,12 +6,13 @@
     <title>Clasificador de Aviones y Helicópteros</title>
     <!-- Importa TensorFlow.js -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.21.0/dist/tf.min.js"></script>
-    <!-- Importa Teachable Machine Image -->
-    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8.6/dist/teachablemachine-image.min.js"></script>
+    <!-- Importa Teachable Machine Image con la URL actualizada -->
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image/dist/teachablemachine-image.min.js"></script>
 
     <!-- Importar fuente y estilos -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap">
     <style>
+        /* Tus estilos CSS permanecen igual */
         body {
             font-family: 'Montserrat', sans-serif;
             background-color: #eef2f7;
@@ -176,6 +177,14 @@
     </div>
 
     <script type="text/javascript">
+        // Comprobación de que las bibliotecas se cargaron correctamente
+        console.log('Versión de TensorFlow.js:', tf.version.tfjs);
+        if (typeof tmImage !== 'undefined') {
+            console.log('tmImage está disponible');
+        } else {
+            console.error('tmImage NO está disponible');
+        }
+
         const MODEL_URL = "./model/";
 
         let model, webcam, maxPredictions;
@@ -189,7 +198,9 @@
         }
 
         async function initWebcam() {
-            await loadModel();
+            if (!model) {
+                await loadModel();
+            }
             if (webcam) {
                 webcam.stop();
             }
@@ -218,7 +229,9 @@
         }
 
         async function loadImage(event) {
-            await loadModel();
+            if (!model) {
+                await loadModel();
+            }
             if (webcam) {
                 webcam.stop();
             }
@@ -237,7 +250,7 @@
         }
 
         async function predict(source) {
-            const prediction = await model.predict(source, false);
+            const prediction = await model.predict(source);
             displayResults(prediction);
         }
 
